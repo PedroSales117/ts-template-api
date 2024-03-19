@@ -1,0 +1,24 @@
+{
+  "name": "ts-template-api",
+  "version": "1.0.0",
+  "description": "Template for API service in typescript.",
+  "main": "dist/app.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/PedroSales117/ts-template-api.git"
+  },
+  "keywords": [
+    "template",
+    "api",
+    "typescript",
+    "service",
+    "neverthrow"
+  ],
+  "author": "PedroSales117",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PedroSales117/ts-template-api/issues"
+  },
+  "homepage": "https://github.com/PedroSales117/ts-template-api#readme"
+}
