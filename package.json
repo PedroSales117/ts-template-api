@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/PedroSales117/ts-template-api/issues"
   },
-  "homepage": "https://github.com/PedroSales117/ts-template-api#readme"
+  "homepage": "https://github.com/PedroSales117/ts-template-api#readme",
+  "devDependencies": {
+    "@commitlint/cli": "19.2.1",
+    "@commitlint/config-conventional": "19.1.0"
+  }
 }
