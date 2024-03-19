@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Template for API service in typescript.",
   "main": "dist/app.js",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/PedroSales117/ts-template-api.git"
@@ -23,6 +25,7 @@
   "homepage": "https://github.com/PedroSales117/ts-template-api#readme",
   "devDependencies": {
     "@commitlint/cli": "19.2.1",
-    "@commitlint/config-conventional": "19.1.0"
+    "@commitlint/config-conventional": "19.1.0",
+    "husky": "^9.0.11"
   }
 }
