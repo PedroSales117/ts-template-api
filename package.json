@@ -4,7 +4,10 @@
   "description": "Template for API service in typescript.",
   "main": "dist/app.js",
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "start:dev": "esrun src/app.ts --target=node18 --sourcemap --splitting --outdir=dist --platform=node --packages=external --tsconfig=./tsconfig.json",
+    "start": "node dist/app.js",
+    "build": "esbuild src/app.ts --target=node18 --bundle --outdir=dist --platform=node --packages=external --tsconfig=./tsconfig.json"
   },
   "repository": {
     "type": "git",
