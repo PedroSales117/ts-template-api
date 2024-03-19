@@ -26,9 +26,11 @@
   "devDependencies": {
     "@commitlint/cli": "19.2.1",
     "@commitlint/config-conventional": "19.1.0",
+    "@digitak/esrun": "3.2.26",
     "@types/node": "20.11.30",
     "@typescript-eslint/eslint-plugin": "7.3.1",
     "@typescript-eslint/parser": "7.3.1",
+    "esbuild": "0.20.2",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-neverthrow": "1.1.4",
