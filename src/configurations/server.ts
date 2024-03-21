@@ -13,7 +13,7 @@ export class HttpServer implements IServer {
     return this.adapter.use(prefix, opts);
   }
 
-  useRouters(routers: IRouter[]): Result<void, string> {
+  async useRouters(routers: IRouter[]): Promise<Result<void, string>> {
     return this.adapter.useRouters(routers);
   }
 
