@@ -1,18 +1,21 @@
-interface IRequest {
-  body: unknown;
-  query: unknown;
-  params: unknown;
+interface IRequest<Body = unknown, Query = unknown, Params = unknown> {
+  body: Body;
+  query: Query;
+  params: Params;
 }
 
 interface IReply {
-  send: (body: unknown) => void;
+  send: <Response>(body: Response) => void;
   status: (statusCode: number) => IReply;
 }
 
-export interface IRoute {
+export interface IRoute<
+  Request extends IRequest = IRequest,
+  Response = unknown,
+> {
   path: string;
-  method: "GET";
-  handler: (request: IRequest, reply: IReply) => Promise<unknown>;
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  handler: (request: Request, reply: IReply) => Promise<Response>;
 }
 
 export interface IRouter {
