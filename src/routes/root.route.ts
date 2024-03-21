@@ -9,8 +9,8 @@ export const rootRoute = (): IRouter => {
     path: "/status",
     method: "GET",
     handler: async (_request, reply) => {
-      return reply.status(HttpStatus.OK).send({
-        status: "Up",
+      reply.status(HttpStatus.OK).send({
+        status: "up",
       });
     },
   });
