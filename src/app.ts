@@ -3,11 +3,15 @@ import { HttpServer } from "./configurations/server";
 
 const app = async (): Promise<void> => {
   const server = new HttpServer();
-  server.useRouters([rootRoute()]);
 
-  const listenResult = await server.listen(Number(process.env.PORT) | 3000);
-  if (listenResult.isErr())
+  await server.useRouters([rootRoute()]);
+
+  const port = Number(process.env.PORT) || 3000;
+
+  const listenResult = await server.listen(port);
+  if (listenResult.isErr()) {
     console.error(`Error starting server: ${listenResult.error}`);
+  }
 };
 
 void app();
