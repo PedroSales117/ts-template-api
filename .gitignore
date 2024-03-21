@@ -1,2 +1,7 @@
+#DIRECTORIES
 node_modules
 dist
+
+
+#ENVIRONMENT
+.env

@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { rootRoute } from "./routes";
 import { HttpServer } from "./configurations/server";
 
