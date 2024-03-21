@@ -1,5 +1,4 @@
 import Fastify, { FastifyInstance } from "fastify";
-
 import { IRouter, IRoute, IUseCallback } from "../../interfaces";
 import { Result, Ok, Err } from "../../helpers/result.helper";
 
@@ -12,16 +11,18 @@ export class ServerAdapter {
 
   async use(prefix: string, opts: IUseCallback): Promise<Result<void, string>> {
     try {
-      void this.server.register(opts, { prefix });
+      await this.server.register(opts, { prefix });
       return Ok(undefined);
     } catch (error) {
-      return Err(`${error}`);
+      return Err(
+        `Failed to use middleware: ${error instanceof Error ? error.message : error}`,
+      );
     }
   }
 
-  useRouters(routers: IRouter[]): Result<void, string> {
+  async useRouters(routers: IRouter[]): Promise<Result<void, string>> {
     try {
-      void this.use("/api", (instance, _opts, done) => {
+      await this.use("/api", (instance, _opts, done) => {
         for (const router of routers) {
           router.getRoutes().forEach((route: IRoute) => {
             instance.route({
@@ -35,7 +36,9 @@ export class ServerAdapter {
       });
       return Ok(undefined);
     } catch (error) {
-      return Err(`${error}`);
+      return Err(
+        `Failed to register routes: ${error instanceof Error ? error.message : error}`,
+      );
     }
   }
 
@@ -44,7 +47,9 @@ export class ServerAdapter {
       await this.server.listen({ host: "0.0.0.0", port });
       return Ok(undefined);
     } catch (err) {
-      return Err(`${err}`);
+      return Err(
+        `Error to start server: ${err instanceof Error ? err.message : err}`,
+      );
     }
   }
 }
