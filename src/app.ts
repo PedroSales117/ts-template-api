@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { rootRoute } from "./routes";
+import { generateReportRouter, rootRoute } from "./routes";
 import { HttpServer } from "./configurations/server";
 
 /**
@@ -12,7 +12,7 @@ const app = async (): Promise<void> => {
   const server = new HttpServer();
 
   // Adds routes to the server. useRouters is now asynchronous.
-  await server.useRouters([rootRoute()]);
+  await server.useRouters([rootRoute(), generateReportRouter()]);
 
   // Sets the port with a default value of 3000 if the PORT environment variable is not defined.
   const port = Number(process.env.PORT) || 3000;
