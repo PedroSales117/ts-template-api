@@ -45,6 +45,7 @@
     "dotenv": "^16.4.5",
     "fastify": "4.26.2",
     "http-status-codes": "^2.3.0",
-    "neverthrow": "6.1.0"
+    "neverthrow": "6.1.0",
+    "openai": "^4.54.0"
   }
 }
