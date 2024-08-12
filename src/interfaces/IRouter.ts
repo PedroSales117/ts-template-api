@@ -1,30 +1,23 @@
-/**
- * Defines the structure of an HTTP request with strongly typed body, query parameters, and route parameters.
- *
- * @template Body Type of the request body, defaults to `unknown` for flexibility.
- * @template Query Type of the query parameters, defaults to `unknown`.
- * @template Params Type of the route parameters, defaults to `unknown`.
- */
-interface IRequest<Body = unknown, Query = unknown, Params = unknown> {
-  body: Body; // The payload of the request.
-  query: Query; // The query parameters of the request.
-  params: Params; // The route parameters of the request.
-}
+import { AdapterReply, AdapterRequest } from "../configurations/adapters/server.adapter";
 
 /**
- * Defines the interface for crafting HTTP replies within route handlers.
- * Allows setting the HTTP status code and sending a response.
+ * Extends the base server.adapter `AdapterRequest` to represent a typed HTTP request within the application.
+ * This interface is used to standardize the structure of requests handled by route handlers.
  */
-interface IReply {
-  send: <Response>(body: Response) => void; // Sends a response with the specified body.
-  status: (statusCode: number) => IReply; // Sets the status code of the response and returns the IReply instance for chaining.
-}
+export interface IRequest extends AdapterRequest {}
 
 /**
- * Describes an HTTP route within the application, including the path, HTTP method, and the handler function.
+ * Extends the base server.adapter `AdapterReply` to represent a typed HTTP reply within the application.
+ * This interface is used to standardize the structure of replies sent by route handlers.
+ */
+export interface IReply extends AdapterReply {}
+
+/**
+ * Represents an HTTP route within the application, including the path, HTTP method, and handler function.
+ * This interface is used to define the routes managed by routers in a type-safe manner.
  *
- * @template Request Extends the `IRequest` interface, allowing for request typing.
- * @template Response The expected type of the response body.
+ * @template Request Extends the `IRequest` interface, providing type safety for the request object.
+ * @template Response The expected type of the response body returned by the handler function.
  */
 export interface IRoute<
   Request extends IRequest = IRequest,
@@ -36,9 +29,10 @@ export interface IRoute<
 }
 
 /**
- * Provides an abstraction for a router, capable of adding and retrieving routes.
+ * Defines the interface for a router, which is responsible for managing and retrieving HTTP routes.
+ * This abstraction allows for easier management of multiple routes within the application.
  */
 export interface IRouter {
   addRoute(route: IRoute): void; // Adds a new route to the router.
-  getRoutes(): IRoute[]; // Retrieves all routes added to the router.
+  getRoutes(): IRoute[]; // Retrieves all routes managed by the router.
 }
