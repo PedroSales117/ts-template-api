@@ -1,7 +1,7 @@
 {
   "name": "ts-template-api",
   "version": "1.0.0",
-  "description": "Template for API service in typescript.",
+  "description": "---",
   "main": "dist/app.js",
   "scripts": {
     "prepare": "husky",
@@ -45,6 +45,8 @@
     "dotenv": "^16.4.5",
     "fastify": "4.26.2",
     "http-status-codes": "^2.3.0",
-    "neverthrow": "6.1.0"
+    "neverthrow": "6.1.0",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2"
   }
 }
