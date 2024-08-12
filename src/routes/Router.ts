@@ -1,4 +1,5 @@
 import { IRoute, IRouter } from "../interfaces/IRouter";
+import logger from "../utils/logger";
 
 /**
  * Implements the IRouter interface, managing routes for the HTTP server.
@@ -21,7 +22,7 @@ export class Router implements IRouter {
     if (!routeExists) {
       this.routes.push(route);
     } else {
-      console.warn(
+      logger.warn(
         `Warning: Route ${route.method} ${route.path} already exists. Duplicate routes are not added.`,
       );
     }
