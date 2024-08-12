@@ -1,18 +1,21 @@
 /**
- * Global declaration to extend the ProcessEnv interface in the NodeJS namespace.
- * This declaration allows adding types for the environment variables used in the project.
+ * Extends the ProcessEnv interface in the NodeJS namespace to include custom environment variables.
+ * This ensures that TypeScript recognizes the environment variables used in the project and provides type safety.
  */
 declare global {
     namespace NodeJS {
         interface ProcessEnv {
             /**
-             * API key for OpenAI.
-             * @type {string}
+             * The port number on which the server should listen.
+             * This variable is typically defined in the environment configuration.
+             * @type {number}
              */
-            OPENAI_API_KEY: string;
+            PORT: number;
         }
     }
 }
 
-// Empty export to convert the file into a module.
+/**
+ * Empty export to convert the file into a module, enabling TypeScript's module scope.
+ */
 export { }
