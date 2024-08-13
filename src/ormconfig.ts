@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+/* import { ExampleProduct } from './entities/ExampleProduct'; */
 
 /**
  * Validates the presence and types of required environment variables and throws an error if any are missing or invalid.
@@ -60,7 +61,7 @@ export const AppDataSource: DataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: isDevelopment,
   logging: isDevelopment,
-  entities: [],
+  entities: [ /* ExampleProduct */ ],
   migrations: ['src/database/migrations/*.ts'],
   subscribers: [],
 });
