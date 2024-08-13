@@ -8,9 +8,45 @@ declare global {
             /**
              * The port number on which the server should listen.
              * This variable is typically defined in the environment configuration.
-             * @type {number}
+             * @type {string}
              */
-            PORT: number;
+            PORT: string;
+
+            /**
+             * The database username, typically defined in the environment configuration.
+             * @type {string}
+             */
+            DB_USERNAME: string;
+
+            /**
+             * The database password, typically defined in the environment configuration.
+             * @type {string}
+             */
+            DB_PASSWORD: string;
+
+            /**
+             * The environment in which the application is running (e.g., 'development', 'production').
+             * @type {string}
+             */
+            NODE_ENV: 'development' | 'production';
+
+            /**
+             * The database host, typically defined in the environment configuration.
+             * @type {string}
+             */
+            DB_HOST: string;
+
+            /**
+             * The database port, typically defined in the environment configuration.
+             * @type {string}
+             */
+            DB_PORT: string;
+
+            /**
+             * The database name, typically defined in the environment configuration.
+             * @type {string}
+             */
+            DB_NAME: string;
         }
     }
 }
