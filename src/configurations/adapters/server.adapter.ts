@@ -3,6 +3,7 @@ import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
 import { IRouter, IRoute, IUseCallback } from "../../interfaces";
 import { Result, Ok, Err } from "../../helpers/result.helper";
 import { loggerOptions } from './configurations/logger';
+import { AppDataSource } from '../../ormconfig';
 
 export interface AdapterRequest extends FastifyRequest { }
 export interface AdapterReply extends FastifyReply { }
@@ -83,19 +84,24 @@ export class ServerAdapter {
     }
   }
 
-  /**
-   * Starts the server listening on a specified PORT.
-   * @param PORT The PORT number on which the server should listen.
+ /**
+   * Starts the server listening on a specified port. Before starting the server, it initializes
+   * the database connection using TypeORM's AppDataSource.
+   * @param port The port number on which the server should listen.
    * @returns A Result indicating success (Ok) or an error message (Err).
    */
-  async listen(PORT: number): Promise<Result<void, string>> {
-    try {
-      await this.server.listen({ host: "0.0.0.0", port: PORT });
-      return Ok(undefined);
-    } catch (err) {
-      return Err(
-        `Error to start server: ${err instanceof Error ? err.message : err}`,
-      );
-    }
+ async listen(port: number): Promise<Result<void, string>> {
+  try {
+    // Inicializar a conexão com o banco de dados
+    await AppDataSource.initialize();
+
+    // Iniciar o servidor
+    await this.server.listen({ host: "0.0.0.0", port });
+    return Ok(undefined);
+  } catch (err) {
+    return Err(
+      `Error to start server: ${err instanceof Error ? err.message : err}`,
+    );
   }
+}
 }
