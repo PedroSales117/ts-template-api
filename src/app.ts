@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "dotenv/config";
 import { rootRoute } from "./routes/root.route";
 import { HttpServer } from "./configurations/server";
