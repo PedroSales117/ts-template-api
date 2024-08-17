@@ -8,9 +8,9 @@ declare global {
             /**
              * The port number on which the server should listen.
              * This variable is typically defined in the environment configuration.
-             * @type {string}
+             * @type {number}
              */
-            PORT: string;
+            PORT: number;
 
             /**
              * The database username, typically defined in the environment configuration.
