@@ -12,6 +12,7 @@
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "useUnknownInCatchVariables": false,
+        "emitDecoratorMetadata": true,
         "experimentalDecorators": true
     },
     "include": [
