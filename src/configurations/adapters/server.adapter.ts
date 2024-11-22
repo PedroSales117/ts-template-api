@@ -1,49 +1,76 @@
 import pino from 'pino';
-import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { IRouter, IRoute, IUseCallback } from "../../interfaces";
-import { Result, Ok, Err } from "../../helpers/result.helper";
 import { loggerOptions } from './configurations/logger';
+import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import fastifyJwt from '@fastify/jwt';
+import { IRouter, IUseCallback } from '../../interfaces';
+import { Result, Ok, Err } from '../../helpers/result.helper';
 import { AppDataSource } from '../../ormconfig';
+import logger from '../../utils/logger';
 
-export interface AdapterRequest extends FastifyRequest { }
-export interface AdapterReply extends FastifyReply { }
+export type AdapterRequest = FastifyRequest
+export type AdapterReply = FastifyReply
 
 /**
  * Configures the Pino logger with specific settings, including the log level and formatting options.
  */
 export const adapterLogger = pino(loggerOptions);
 
+
 /**
  * ServerAdapter provides an abstraction layer over the Fastify framework,
- * allowing for easy setup and management of routes and middlewares.
+ * allowing for the easy setup and management of routes, middlewares, and server configuration.
  */
 export class ServerAdapter {
-  private server: FastifyInstance;
+  private server: FastifyInstance; // The underlying Fastify server instance.
 
   /**
-   * Initializes the server with Fastify, enabling logging by default.
+   * Initializes the server with Fastify, setting default configurations,
+   * such as body size limits, JWT support, and CORS headers.
    */
   constructor() {
     this.server = Fastify({
-      logger: loggerOptions,
-      bodyLimit: 30 * 1024 * 1024
+      logger: true, // Enables built-in Fastify logging.
+      bodyLimit: 30 * 1024 * 1024, // Sets the maximum request body size to 30 MB.
     });
 
-    this.server.addHook("onRequest", async (request, reply) => {
-      reply.header("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN);
-      reply.header("Access-Control-Allow-Credentials", true);
-      reply.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID");
-      reply.header("Access-Control-Allow-Methods", "OPTIONS, POST, PUT, PATCH, GET, DELETE");
-      if (request.method === "OPTIONS") {
-        reply.send();
+    // Registering the fastify-jwt plugin for JWT validation.
+    this.server.register(fastifyJwt, {
+      secret: process.env.JWT_SECRET as string, // The secret key for signing and verifying tokens.
+    });
+
+    // Add a hook to handle CORS and OPTIONS requests.
+    this.server.addHook('onRequest', async (request, reply) => {
+      reply.header('Access-Control-Allow-Origin', process.env.ALLOW_ORIGIN || '*');
+      reply.header('Access-Control-Allow-Credentials', 'true');
+      reply.header(
+        'Access-Control-Allow-Headers',
+        'Authorization, Origin, X-Requested-With, Content-Type, Accept, X-Slug, X-UID'
+      );
+      reply.header(
+        'Access-Control-Allow-Methods',
+        'OPTIONS, POST, PUT, PATCH, GET, DELETE'
+      );
+      if (request.method === 'OPTIONS') {
+        reply.send(); // Handle preflight requests for CORS.
+      }
+    });
+
+    // Add a global error handler to manage uncaught exceptions during request processing.
+    this.server.setErrorHandler((error, request, reply) => {
+      logger.error(`Error during request ${request.method} ${request.url}:`, error);
+
+      if (!reply.sent) {
+        reply.status(500).send({ message: error.message || 'Internal Server Error' });
       }
     });
   }
 
   /**
    * Registers a middleware or a series of middlewares to the server with an optional prefix.
-   * @param prefix The URL prefix for all paths within the middleware.
-   * @param opts Middleware function or an object describing the middleware.
+   * Useful for modular configurations like authentication, logging, or validation logic.
+   * 
+   * @param prefix - The URL prefix for all paths associated with the middleware.
+   * @param opts - Middleware function or object describing the middleware behavior.
    * @returns A Result indicating success (Ok) or an error message (Err).
    */
   async use(prefix: string, opts: IUseCallback): Promise<Result<void, string>> {
@@ -52,56 +79,60 @@ export class ServerAdapter {
       return Ok(undefined);
     } catch (error) {
       return Err(
-        `Failed to use middleware: ${error instanceof Error ? error.message : error}`,
+        `Failed to use middleware: ${error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }
 
   /**
-   * Registers an array of routers to the server, each containing a set of routes.
-   * @param routers An array of IRouter, each router managing multiple routes.
+   * Registers an array of routers, each containing multiple routes, to the server.
+   * The routes are automatically prefixed with `/api` for consistency.
+   * 
+   * @param routers - An array of IRouter instances managing multiple routes.
    * @returns A Result indicating success (Ok) or an error message (Err).
    */
   async useRouters(routers: IRouter[]): Promise<Result<void, string>> {
     try {
-      await this.use("/api", (instance, _opts, done) => {
-        for (const router of routers) {
-          router.getRoutes().forEach((route: IRoute) => {
-            instance.route({
-              method: route.method,
-              url: route.path,
-              handler: route.handler,
-            });
+      for (const router of routers) {
+        for (const route of router.getRoutes()) {
+          this.server.route({
+            method: route.method, // The HTTP method (GET, POST, DELETE, etc.).
+            url: `/api${route.path}`, // Prepend "/api" to all routes.
+            preHandler: route.middlewares || [], // Attach any middlewares to the route.
+            handler: route.handler, // The main handler for processing requests.
           });
         }
-        done();
-      });
+      }
       return Ok(undefined);
     } catch (error) {
       return Err(
-        `Failed to register routes: ${error instanceof Error ? error.message : error}`,
+        `Failed to register routes: ${error instanceof Error ? error.message : String(error)
+        }`
       );
     }
   }
 
- /**
-   * Starts the server listening on a specified port. Before starting the server, it initializes
-   * the database connection using TypeORM's AppDataSource.
-   * @param port The port number on which the server should listen.
+  /**
+   * Starts the server, initializes the database connection, and listens on a specified port.
+   * Handles database connection failures gracefully.
+   * 
+   * @param port - The port number on which the server will listen.
    * @returns A Result indicating success (Ok) or an error message (Err).
    */
- async listen(port: number): Promise<Result<void, string>> {
-  try {
-    // Inicializar a conexão com o banco de dados
-    await AppDataSource.initialize();
+  async listen(port: number): Promise<Result<void, string>> {
+    try {
+      // Initialize the database connection using TypeORM's AppDataSource.
+      await AppDataSource.initialize();
 
-    // Iniciar o servidor
-    await this.server.listen({ host: "0.0.0.0", port });
-    return Ok(undefined);
-  } catch (err) {
-    return Err(
-      `Error to start server: ${err instanceof Error ? err.message : err}`,
-    );
+      // Start the Fastify server on the specified port.
+      await this.server.listen({ host: '0.0.0.0', port });
+      return Ok(undefined);
+    } catch (error) {
+      logger.error(`Failed to start server: ${error instanceof Error ? error.message : String(error)}`);
+      return Err(
+        `Error starting server: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
   }
-}
 }
