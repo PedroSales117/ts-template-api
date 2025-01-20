@@ -32,4 +32,13 @@ export class RootAdapter {
       (error) => new Error(`Failed to return root status: ${error instanceof Error ? error.message : String(error)}`)
     );
   }
+
+  async returnHealthMessage() {
+    return ResultAsync.fromPromise<{ message: "Up" }, Error>(
+      this.rootStatus.then((result) => ({
+        message: 'Up',
+      })),
+      (error) => new Error(`Failed to return health status: ${error instanceof Error ? error.message : String(error)}`)
+    );
+  }
 }

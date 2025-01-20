@@ -25,4 +25,8 @@ export class RootService {
   async returnStatusMessage(test_message: string) {
     return this.rootAdapter.returnStatusMessage(test_message);
   }
+
+  async returnHealthMessage() {
+    return this.rootAdapter.returnHealthMessage();
+  }
 }

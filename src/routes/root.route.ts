@@ -23,7 +23,7 @@ export const rootRoute = (): IRouter => {
 
   // Define a route for service health checks.
   root_router.addRoute({
-    path: "/status", // The path for the status check route.
+    path: "/auth/status", // The path for the status check route.
     method: "POST", // HTTP method to respond with.
     middlewares: [authGuard],
     handler: async (request, reply) => {
@@ -31,6 +31,16 @@ export const rootRoute = (): IRouter => {
       await new RootController().returnStatusMessage(request, reply);
     },
   });
+
+    // Define a route for service health checks.
+    root_router.addRoute({
+      path: "/status", // The path for the status check route.
+      method: "GET", // HTTP method to respond with.
+      handler: async (request, reply) => {
+        // Handler function to return the service status message.
+        await new RootController().returnHealthMessage(request, reply);
+      },
+    });
 
   return root_router; // Return the configured router with the status route.
 };

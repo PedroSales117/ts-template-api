@@ -7,8 +7,13 @@ import { StatusCodes } from "http-status-codes";
  *
  * It's intended to be expanded with additional status codes as needed.
  */
-export const HttpStatus = {
-  OK: StatusCodes.OK, // Represents a 200 OK HTTP status code.
-  INTERNAL_SERVER_ERROR: StatusCodes.INTERNAL_SERVER_ERROR,  // Represents a 500 INTERNAL_SERVER_ERROR HTTP status code.
-  BAD_REQUEST: StatusCodes.BAD_REQUEST,  // Represents a 400 BAD_REQUEST HTTP status code.
-};
+export const HttpStatus = Object.freeze({
+  OK: StatusCodes.OK,
+  INTERNAL_SERVER_ERROR: StatusCodes.INTERNAL_SERVER_ERROR,
+  BAD_REQUEST: StatusCodes.BAD_REQUEST,
+  CREATED: StatusCodes.CREATED,
+  NO_CONTENT: StatusCodes.NO_CONTENT,
+  NOT_FOUND: StatusCodes.NOT_FOUND,
+} as const);
+
+export type HttpStatus = typeof HttpStatus[keyof typeof HttpStatus];

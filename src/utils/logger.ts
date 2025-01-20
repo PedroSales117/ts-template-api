@@ -1,44 +1,46 @@
-import { adapterLogger } from "../configurations/adapters/server.adapter";
-
 type LogLevel = 'info' | 'warn' | 'error';
+type LogMetadata = Record<string, unknown>;
 
-/**
- * Logs a message with the specified log level.
- *
- * @param {LogLevel} level - The log level ('info', 'warn', 'error').
- * @param {string} message - The message to log.
- * @param {any} [error] - Optional error object to include in the log.
- */
-const log = (level: LogLevel, message: string, error?: any) => {
-  if (error) {
-    adapterLogger[level](error, message); // Logs with an error if provided
-  } else {
-    adapterLogger[level](message); // Logs the message only
+const getTimestamp = (): string => {
+  const now = new Date();
+  return now.toISOString();
+};
+
+const formatMetadata = (metadata?: LogMetadata): string => {
+  if (!metadata || Object.keys(metadata).length === 0) {
+    return '';
+  }
+  try {
+    return ` ${JSON.stringify(metadata, getCircularReplacer())}`;
+  } catch (error) {
+    return ' [Unable to stringify metadata]';
   }
 };
 
-/**
- * A logger object with methods for logging at different levels: info, warn, and error.
- */
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key: string, value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return '[Circular Reference]';
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+};
+
+const log = (level: LogLevel, message: string, metadata?: LogMetadata) => {
+  const timestamp = getTimestamp();
+  const formattedMetadata = formatMetadata(metadata);
+
+  console[level](`[${timestamp}] [${level.toUpperCase()}]: ${message}${formattedMetadata}`);
+};
+
 const logger = {
-  /**
-   * Logs an informational message.
-   * @param {string} message - The message to log.
-   */
-  info: (message: string) => log('info', message),
-
-  /**
-   * Logs a warning message.
-   * @param {string} message - The message to log.
-   */
-  warn: (message: string) => log('warn', message),
-
-  /**
-   * Logs an error message, optionally including an error object.
-   * @param {string} message - The message to log.
-   * @param {any} [error] - Optional error object to include in the log.
-   */
-  error: (message: string, error?: any) => log('error', message, error),
+  info: (message: string, metadata?: LogMetadata) => log('info', message, metadata),
+  warn: (message: string, metadata?: LogMetadata) => log('warn', message, metadata),
+  error: (message: string, metadata?: LogMetadata) => log('error', message, metadata),
 };
 
 export default logger;

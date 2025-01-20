@@ -37,4 +37,13 @@ export class RootController {
       error => reply.status(HttpStatus.BAD_REQUEST).send({ message: error.message })
     );
   }
+
+  async returnHealthMessage(request: AdapterRequest, reply: AdapterReply) {
+    const statusMessage = await this.rootService.returnHealthMessage();
+
+    statusMessage.match(
+      status => reply.status(HttpStatus.OK).send(status),
+      error => reply.status(HttpStatus.BAD_REQUEST).send({ message: error.message })
+    );
+  }
 }
