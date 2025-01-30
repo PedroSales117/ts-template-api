@@ -36,17 +36,16 @@ describe('AuthMiddleware', () => {
     });
 
     it('should validate token successfully', async () => {
-        const mockResponse = { data: { id: '123' } };
-        (axios.post as jest.Mock).mockResolvedValueOnce(mockResponse);
+        const mockResponse = { data: { is_valid: true } };
+        (axios.get as jest.Mock).mockResolvedValueOnce(mockResponse);
 
         await authMiddleware.authenticate(
             mockRequest as AdapterRequest,
             mockReply as AdapterReply
         );
 
-        expect(axios.post).toHaveBeenCalledWith(
+        expect(axios.get).toHaveBeenCalledWith(
             'http://auth-api/auth/validate',
-            {},
             { headers: { Authorization: 'Bearer valid-token' } }
         );
         expect(mockReply.status).not.toHaveBeenCalled();

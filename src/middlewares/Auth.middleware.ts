@@ -24,9 +24,8 @@ export class AuthMiddleware {
 
         try {
             // Call the Authentication API to validate the token
-            const response = await axios.post(
+            const response = await axios.get(
                 `${process.env.AUTH_APP_URL}/auth/validate`,
-                {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
