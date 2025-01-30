@@ -1,7 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fastifyJwt from '@fastify/jwt';
 import { ServerAdapter } from '../../../src/configurations/adapters/server.adapter';
-import { AppDataSource } from '../../../src/ormconfig';
 import logger from '../../../src/utils/logger';
 import { IRoute, IRouter } from '../../../src/interfaces';
 import { HttpMethod } from '../../../src/helpers/http-method.helper';
@@ -23,11 +22,6 @@ jest.mock('fastify', () => {
 });
 
 jest.mock('@fastify/jwt');
-jest.mock('../../../src/ormconfig', () => ({
-    AppDataSource: {
-        initialize: jest.fn()
-    }
-}));
 jest.mock('../../../src/utils/logger', () => ({
     info: jest.fn(),
     error: jest.fn()
@@ -403,13 +397,11 @@ describe('ServerAdapter', () => {
 
     describe('listen', () => {
         it('should start server successfully', async () => {
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             (mockFastify.listen as jest.Mock).mockResolvedValueOnce(undefined);
 
             const result = await serverAdapter.listen(3000);
 
             expect(result.isOk()).toBe(true);
-            expect(AppDataSource.initialize).toHaveBeenCalled();
             expect(mockFastify.listen).toHaveBeenCalledWith({
                 host: '0.0.0.0',
                 port: 3000
@@ -417,24 +409,7 @@ describe('ServerAdapter', () => {
             expect(logger.info).toHaveBeenCalled();
         });
 
-        it('should handle database initialization error', async () => {
-            const error = new Error('Database error');
-            (AppDataSource.initialize as jest.Mock).mockRejectedValueOnce(error);
-
-            const result = await serverAdapter.listen(3000);
-
-            expect(result.isErr()).toBe(true);
-            result.match(
-                () => fail('Should not reach success case'),
-                (errorMsg) => {
-                    expect(errorMsg).toContain('Error starting server');
-                    expect(logger.error).toHaveBeenCalled();
-                }
-            );
-        });
-
         it('should handle server listen error', async () => {
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             const error = new Error('Port in use');
             (mockFastify.listen as jest.Mock).mockRejectedValueOnce(error);
 
@@ -451,7 +426,6 @@ describe('ServerAdapter', () => {
         });
 
         it('should log different messages based on environment', async () => {
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             (mockFastify.listen as jest.Mock).mockResolvedValueOnce(undefined);
 
             process.env.NODE_ENV = 'development';
@@ -463,17 +437,7 @@ describe('ServerAdapter', () => {
             expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('time to get serious'));
         });
 
-        it('should not start server if database fails to initialize', async () => {
-            (AppDataSource.initialize as jest.Mock).mockRejectedValueOnce(new Error('Database error'));
-
-            const result = await serverAdapter.listen(3000);
-
-            expect(result.isErr()).toBe(true);
-            expect(mockFastify.listen).not.toHaveBeenCalled();
-        });
-
         it('should log the correct message based on environment', async () => {
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             (mockFastify.listen as jest.Mock).mockResolvedValueOnce(undefined);
 
             process.env.NODE_ENV = 'test';
@@ -492,7 +456,6 @@ describe('ServerAdapter', () => {
         it('should handle undefined NODE_ENV', async () => {
             process.env.NODE_ENV = undefined as any;
 
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             (mockFastify.listen as jest.Mock).mockResolvedValueOnce(undefined);
 
             const result = await serverAdapter.listen(3000);
@@ -505,7 +468,6 @@ describe('ServerAdapter', () => {
         it('should handle unexpected NODE_ENV values', async () => {
             process.env.NODE_ENV = 'staging' as any;
 
-            (AppDataSource.initialize as jest.Mock).mockResolvedValueOnce(undefined);
             (mockFastify.listen as jest.Mock).mockResolvedValueOnce(undefined);
 
             const result = await serverAdapter.listen(3000);
