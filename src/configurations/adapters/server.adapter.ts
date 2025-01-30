@@ -2,7 +2,6 @@ import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import fastifyJwt from '@fastify/jwt';
 import { IRouter, IUseCallback } from '../../interfaces';
 import { Result, Ok, Err } from '../../helpers/result.helper';
-import { AppDataSource } from '../../ormconfig';
 import logger from '../../utils/logger';
 
 /**
@@ -117,9 +116,6 @@ export class ServerAdapter {
    */
   async listen(port: number): Promise<Result<void, string>> {
     try {
-      // Initialize the database connection using TypeORM's AppDataSource.
-      await AppDataSource.initialize();
-
       if (process.env.NODE_ENV !== 'production') {
         logger.info(`Starting ------ ${process.env.NODE_ENV} ------ enviroment, happy debbuging.`)
       } else {
